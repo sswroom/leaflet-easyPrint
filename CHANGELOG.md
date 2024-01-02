@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.0.0
+2/1/2024
+- Add hideIds options
+- Add onclick options
+- Support for updating options
+- Support for custom border information
 
 ## Version 2.1.0
 1/08/2017

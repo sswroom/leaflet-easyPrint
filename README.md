@@ -32,6 +32,11 @@ You can pass a number of options to the plugin to control various settings.
 | hidden | Boolean | false | Set to true if you don't want to display the toolbar. Instead you can create your own buttons or fire print events programmatically. You still need to call `addTo(map)` to set the leaflet map context. |
 | hideControlContainer | Boolean | true | Hides the leaflet controls like the zoom buttons and the attribution on the print out. |
 | hideClasses | array | [] | Hides classes on the print out. Use an array of strings as follow : ['div1', 'div2'] |
+| hideIds | array | [] | Hides ids on the print out. Use an array of strings as follow : ['id1', 'id2'] |
+| pageBorderTopHTML | string | null | HTML to show on top of the page on print |
+| pageBorderBottomHTML | string | null | HTML to show on bottom of the page on print |
+| pageBorderHeight | number | 0 | Total Height in pixel for the page top and bottom information |
+| onclick | Function | null | Set if you want to handle click event instead of showing list of sizeMode buttons. |
 | customWindowTitle | string | Defaults to title of map window. | A title for the print window which will get added the printed paper. |
 | spinnerBgColor | string | '#0DC5C1' | A valid css colour for the spinner background color. |
 | customSpinnerClass | string | 'epLoader' | A class for a custom css spinner to use while waiting for the print. |
@@ -49,7 +54,8 @@ L.easyPrint({
 ### Methods / Using programmatically
 | Method        | Options      | Description   |
 | --------------|--------------|--------------|
-| printMap(size, filename) | Print size name, either 'CurrentSize', 'A4Portrait', 'A4Landscape', or the `className` of a custom size. And a filename | Manually trigger a print operation |
+| printMap(size, filename) | Print size name, either 'CurrentSize', 'A4Portrait', 'A4Landscape', or the `className` of a custom size. And a filename. | Manually trigger a print operation |
+| updateOptions(name, value) | Update options dynamitically | Update the options at runtime. |
 ````
 var printPlugin = L.easyPrint({
 	hidden: true,
