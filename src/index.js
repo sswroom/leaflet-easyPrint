@@ -17,13 +17,16 @@ L.Control.EasyPrint = L.Control.extend({
 		pageBorderTopHTML: null,
 		pageBorderBottomHTML: null,
 		pageBorderHeight: 0,
+		overlayHTML: null,
 		customWindowTitle: window.document.title,
 		spinnerBgCOlor: '#0DC5C1',
 		customSpinnerClass: 'epLoader',
 		defaultSizeTitles: {
 			Current: 'Current Size',
 			A4Landscape: 'A4 Landscape',
-			A4Portrait: 'A4 Portrait'
+			A4Portrait: 'A4 Portrait',
+			A3Landscape: 'A3 Landscape',
+			A3Portrait: 'A3 Portrait'
 		}
 	},
 
@@ -41,7 +44,8 @@ L.Control.EasyPrint = L.Control.extend({
 					height: this._a4PageSize.height,
 					width: this._a4PageSize.width,
 					name: this.options.defaultSizeTitles.A4Landscape,
-					className: 'A4Landscape page'
+					className: 'A4Landscape page',
+					paperSize: 'A4'
 				}
 			}
 			if (sizeMode === 'A4Portrait') {
@@ -49,7 +53,26 @@ L.Control.EasyPrint = L.Control.extend({
 					height: this._a4PageSize.width,
 					width: this._a4PageSize.height,
 					name: this.options.defaultSizeTitles.A4Portrait,
-					className: 'A4Portrait page'
+					className: 'A4Portrait page',
+					paperSize: 'A4'
+				}
+			};
+			if (sizeMode === 'A3Landscape') {
+				return {
+					height: this._a3PaperSize.height - this._pageMargin.y * 2,
+					width: this._a3PaperSize.width - this._pageMargin.x * 2,
+					name: this.options.defaultSizeTitles.A3Landscape,
+					className: 'A3Landscape page',
+					paperSize: 'A3'
+				}
+			}
+			if (sizeMode === 'A3Portrait') {
+				return {
+					height: this._a3PaperSize.width - this._pageMargin.x * 2,
+					width: this._a3PaperSize.height - this._pageMargin.y * 2,
+					name: this.options.defaultSizeTitles.A3Portrait,
+					className: 'A3Portrait page',
+					paperSize: 'A3'
 				}
 			};
 			return sizeMode;
@@ -170,16 +193,22 @@ L.Control.EasyPrint = L.Control.extend({
 			return item.className.indexOf(sizeMode) > -1;
 		});
 		pageSize = pageSize[0];
+		if (pageSize == null)
+		{
+			console.log(this.options.sizeModes, sizeMode);
+			throw new Error("sizeMode not found");
+		}
 		var pageBorderHeight = 0;
 		if (this.options.pageBorderHeight)
 			pageBorderHeight = this.options.pageBorderHeight + 4;
 		this.mapContainer.style.width = pageSize.width + 'px';
 		this.mapContainer.style.height = (pageSize.height - pageBorderHeight) + 'px';
-		if (this.mapContainer.style.width > this.mapContainer.style.height) {
+		if (pageSize.width < pageSize.height) {
 			this.orientation = 'portrait';
 		} else {
 			this.orientation = 'landscape';
 		}
+		this.paperSize = pageSize.paperSize;
 		this._map.setView(this.originalState.center);
 		this._map.setZoom(this.originalState.zoom);
 		this._map.invalidateSize();
@@ -215,7 +244,7 @@ L.Control.EasyPrint = L.Control.extend({
 					if (plugin.options.exportOnly) {
 						fileSaver.saveAs(blob, plugin.options.filename + '.png');
 					} else {
-						plugin._sendToBrowserPrint(dataUrl, plugin.orientation);
+						plugin._sendToBrowserPrint(dataUrl, plugin.orientation, plugin.paperSize);
 					}
 					plugin._toggleControls(true);
 					plugin._toggleClasses(plugin.options.hideClasses, true);
@@ -243,9 +272,9 @@ L.Control.EasyPrint = L.Control.extend({
 			}); 
 	},
 
-	_sendToBrowserPrint: function (img, orientation) {
+	_sendToBrowserPrint: function (img, orientation, paperSize) {
 		this._page.resizeTo(600, 800); 
-		var pageContent = this._createNewWindow(img, orientation, this)
+		var pageContent = this._createNewWindow(img, orientation, this, paperSize)
 		this._page.document.body.innerHTML = ''
 		this._page.document.write(pageContent);
 		this._page.document.close();  
@@ -327,17 +356,18 @@ L.Control.EasyPrint = L.Control.extend({
 		<div class="`+spinnerClass+`">Loading...</div></body></html>`;
 	},
 
-	_createNewWindow: function (img, orientation, plugin) {
+	_createNewWindow: function (img, orientation, plugin, paperSize) {
 		var strs =  new Array();
 		strs.push(`<html><head>
 				<style>@media print {
 					img { max-width: 98%!important; max-height: 98%!important; }
-					@page { size: ` + orientation + `;}}
+					@page { size: ` + (paperSize?paperSize:'')+' '+ orientation + `;}}
 				</style>
 				<script>function step1(){
 				setTimeout('step2()', 10);}
 				function step2(){window.print();window.close()}
-				</script></head><body onload='step1()'>`);
+				</script></head><body onload='step1()' style="margin: 0px;">`);
+		console.log(paperSize, orientation);
 		if (plugin.options.pageBorderTopHTML || plugin.options.pageBorderBottomHTML)
 		{
 			strs.push("<table border=\"0\" width=\"100%\" height=\"100%\">");
@@ -345,7 +375,10 @@ L.Control.EasyPrint = L.Control.extend({
 			{
 				strs.push("<tr><td>"+plugin.options.pageBorderTopHTML+"</td></tr>");
 			}
-			strs.push(`<tr><td><img src="` + img + `" style="display:block; margin:auto;"></td></tr>`);
+			strs.push(`<tr><td>`);
+			if (plugin.options.overlayHTML)
+				strs.push(plugin.options.overlayHTML);
+			strs.push(`<img src="` + img + `" style="display:block; margin:auto;"></td></tr>`);
 			if (plugin.options.pageBorderBottomHTML)
 			{
 				strs.push("<tr><td>"+plugin.options.pageBorderBottomHTML+"</td></tr>");
@@ -354,6 +387,8 @@ L.Control.EasyPrint = L.Control.extend({
 		}
 		else
 		{
+			if (plugin.options.overlayHTML)
+				strs.push(plugin.options.overlayHTML);
 			strs.push(`<img src="` + img + `" style="display:block; margin:auto;">`);
 		}
 		strs.push(`</body></html>`);
@@ -378,13 +413,6 @@ L.Control.EasyPrint = L.Control.extend({
 			outerContainer.parentNode.removeChild(blankDiv);
 			outerContainer.parentNode.removeChild(outerContainer);      
 		}
-		var d;
-		d = document.getElementById("easyPrintPageBorderTop");
-		if (d)
-			d.parentNode.removeChild(d);
-		d = document.getElementById("easyPrintPageBorderBottom");
-		if (d)
-			d.parentNode.removeChild(d);
 	},
 
 	_addCss: function () {
@@ -411,6 +439,9 @@ L.Control.EasyPrint = L.Control.extend({
 			background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDQ0NC44MzMgNDQ0LjgzMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDQ0LjgzMyA0NDQuODMzOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij4KPGc+Cgk8Zz4KCQk8cGF0aCBkPSJNNTUuMjUsNDQ0LjgzM2gzMzQuMzMzYzkuMzUsMCwxNy03LjY1LDE3LTE3VjEzOS4xMTdjMC00LjgxNy0xLjk4My05LjM1LTUuMzgzLTEyLjQ2N0wyNjkuNzMzLDQuNTMzICAgIEMyNjYuNjE3LDEuNywyNjIuMzY3LDAsMjU4LjExNywwSDU1LjI1Yy05LjM1LDAtMTcsNy42NS0xNywxN3Y0MTAuODMzQzM4LjI1LDQzNy4xODMsNDUuOSw0NDQuODMzLDU1LjI1LDQ0NC44MzN6ICAgICBNMzcyLjU4MywxNDYuNDgzdjAuODVIMjU2LjQxN3YtMTA4LjhMMzcyLjU4MywxNDYuNDgzeiBNNzIuMjUsMzRoMTUwLjE2N3YxMzAuMzMzYzAsOS4zNSw3LjY1LDE3LDE3LDE3aDEzMy4xNjd2MjI5LjVINzIuMjVWMzR6ICAgICIgZmlsbD0iIzAwMDAwMCIvPgoJPC9nPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=);
 		}
 		.easyPrintHolder .A4Landscape { 
+			transform: rotate(-90deg);
+		}
+		.easyPrintHolder .A3Landscape { 
 			transform: rotate(-90deg);
 		}
 
@@ -501,7 +532,23 @@ L.Control.EasyPrint = L.Control.extend({
 	_a4PageSize: {
 		height: 715,
 		width: 1045
+	},
+
+	_a4PaperSize: {
+		width: 1123.660266,
+		height: 794.547794
+	},
+
+	_a3PaperSize: {
+		width: 1589.095588,
+		height: 1123.660266
+	},
+
+	_pageMargin: {
+		x: 40,
+		y: 40
 	}
+
 
 });
 

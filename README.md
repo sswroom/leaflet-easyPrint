@@ -23,7 +23,7 @@ You can pass a number of options to the plugin to control various settings.
 | ------------- |--------------|--------------|---------------|
 | title | string | 'Print map' | Sets the text which appears as the tooltip of the print/export button |
 | position | [Leaflet control position](http://leafletjs.com/reference-1.1.0.html#controls) | 'topleft' | Positions the print button |
-| sizeModes | array | `Current` | Options available include `Current`, `A4Portrait`, `A4Landscape` or a [custom size object](#custom-print-sizes) |
+| sizeModes | array | `Current` | Options available include `Current`, `A4Portrait`, `A4Landscape`, `A3Portrait`, `A3Landscape` or a [custom size object](#custom-print-sizes) |
 | defaultSizeTitles | object | `{Current: 'Current Size', A4Landscape: 'A4 Landscape', A4Portrait: 'A4 Portrait'}`| button tooltips for the default page sizes |
 | exportOnly | Boolean | `false` | If set to `true` the map is exported to a png file |
 | tileLayer | [Leaflet tile layer](http://leafletjs.com/reference-1.1.0.html#tilelayer) | `null` | A tile layer that you can wait for to draw (helpful when resizing) |
@@ -36,6 +36,7 @@ You can pass a number of options to the plugin to control various settings.
 | pageBorderTopHTML | string | null | HTML to show on top of the page on print |
 | pageBorderBottomHTML | string | null | HTML to show on bottom of the page on print |
 | pageBorderHeight | number | 0 | Total Height in pixel for the page top and bottom information |
+| overlayHTML | string | null | Overlay informations on print |
 | onclick | Function | null | Set if you want to handle click event instead of showing list of sizeMode buttons. |
 | customWindowTitle | string | Defaults to title of map window. | A title for the print window which will get added the printed paper. |
 | spinnerBgColor | string | '#0DC5C1' | A valid css colour for the spinner background color. |
@@ -72,7 +73,8 @@ var a3Size = {
 	width: 2339,
 	height: 3308,
 	className: 'a3CssClass',
-	tooltip: 'A custom A3 size'
+	tooltip: 'A custom A3 size',
+	paperSize: 'A3'
 }
 
 // in css 

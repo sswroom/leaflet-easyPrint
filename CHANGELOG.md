@@ -6,6 +6,7 @@
 - Add onclick options
 - Support for updating options
 - Support for custom border information
+- Support paperSize
 
 ## Version 2.1.0
 1/08/2017
