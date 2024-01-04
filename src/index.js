@@ -90,22 +90,22 @@ L.Control.EasyPrint = L.Control.extend({
 			this.link.title = this.options.title;
 			this.holder = L.DomUtil.create('ul', 'easyPrintHolder', container);
 
-		if (this.options.onclick)
-		{
-		L.DomEvent.addListener(container, 'click', this.options.onclick, this);
-		}
-		else
-		{
-		L.DomEvent.addListener(container, 'mouseover', this._togglePageSizeButtons, this);
-		L.DomEvent.addListener(container, 'mouseout', this._togglePageSizeButtons, this);
-	
-		this.options.sizeModes.forEach(function (sizeMode) {
-			var btn = L.DomUtil.create('li', 'easyPrintSizeMode', this.holder);
-			btn.title = sizeMode.name;
-			var link = L.DomUtil.create('a', sizeMode.className, btn);
-			L.DomEvent.addListener(btn, 'click', this.printMap, this);
-		}, this);
-		}
+			if (this.options.onclick)
+			{
+				L.DomEvent.addListener(container, 'click', this.options.onclick, this);
+			}
+			else
+			{
+				L.DomEvent.addListener(container, 'mouseover', this._togglePageSizeButtons, this);
+				L.DomEvent.addListener(container, 'mouseout', this._togglePageSizeButtons, this);
+			
+				this.options.sizeModes.forEach(function (sizeMode) {
+						var btn = L.DomUtil.create('li', 'easyPrintSizeMode', this.holder);
+						btn.title = sizeMode.name;
+						var link = L.DomUtil.create('a', sizeMode.className, btn);
+						L.DomEvent.addListener(btn, 'click', this.printMap, this);
+					}, this);
+			}
 			L.DomEvent.disableClickPropagation(container);
 		}
 		return container;
