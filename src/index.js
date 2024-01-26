@@ -1,5 +1,5 @@
-var domtoimage = require('dom-to-image');
-var fileSaver = require('file-saver');
+let domtoimage = require('dom-to-image');
+let fileSaver = require('file-saver');
 
 L.Control.EasyPrint = L.Control.extend({
 	options: {
@@ -78,11 +78,11 @@ L.Control.EasyPrint = L.Control.extend({
 			return sizeMode;
 		}, this);
 		
-		var container = L.DomUtil.create('div', 'leaflet-control-easyPrint leaflet-bar leaflet-control');
+		let container = L.DomUtil.create('div', 'leaflet-control-easyPrint leaflet-bar leaflet-control');
 		if (!this.options.hidden) {
 			this._addCss();
 
-			var btnClass = 'leaflet-control-easyPrint-button'
+			let btnClass = 'leaflet-control-easyPrint-button'
 			if (this.options.exportOnly) btnClass = btnClass + '-export'
 
 			this.link = L.DomUtil.create('a', btnClass, container);
@@ -100,9 +100,9 @@ L.Control.EasyPrint = L.Control.extend({
 				L.DomEvent.addListener(container, 'mouseout', this._togglePageSizeButtons, this);
 			
 				this.options.sizeModes.forEach(function (sizeMode) {
-						var btn = L.DomUtil.create('li', 'easyPrintSizeMode', this.holder);
+						let btn = L.DomUtil.create('li', 'easyPrintSizeMode', this.holder);
 						btn.title = sizeMode.name;
-						var link = L.DomUtil.create('a', sizeMode.className, btn);
+						let link = L.DomUtil.create('a', sizeMode.className, btn);
 						L.DomEvent.addListener(btn, 'click', this.printMap, this);
 					}, this);
 			}
@@ -148,7 +148,7 @@ L.Control.EasyPrint = L.Control.extend({
 		if (this.options.hideIds) {
 			this._toggleIds(this.options.hideIds);
 		}
-		var sizeMode = typeof event !== 'string' ? event.target.className : event;
+		let sizeMode = typeof event !== 'string' ? event.target.className : event;
 		if (sizeMode === 'CurrentSize') {
 			return this._printOpertion(sizeMode);
 		}
@@ -164,14 +164,14 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_createImagePlaceholder: function (sizeMode) {
-		var plugin = this;
+		let plugin = this;
 		domtoimage.toPng(this.mapContainer, {
 				width: parseInt(this.originalState.mapWidth.replace('px')),
 				height: parseInt(this.originalState.mapHeight.replace('px'))
 			})
 			.then(function (dataUrl) {
 				plugin.blankDiv = document.createElement("div");
-				var blankDiv = plugin.blankDiv;
+				let blankDiv = plugin.blankDiv;
 				plugin.outerContainer.parentElement.insertBefore(blankDiv, plugin.outerContainer);
 				blankDiv.className = 'epHolder';
 				blankDiv.style.backgroundImage = 'url("' + dataUrl + '")';
@@ -189,7 +189,7 @@ L.Control.EasyPrint = L.Control.extend({
 
 	_resizeAndPrintMap: function (sizeMode) {
 		this.outerContainer.style.opacity = 0;
-		var pageSize = this.options.sizeModes.filter(function (item) {
+		let pageSize = this.options.sizeModes.filter(function (item) {
 			return item.className.indexOf(sizeMode) > -1;
 		});
 		pageSize = pageSize[0];
@@ -198,7 +198,7 @@ L.Control.EasyPrint = L.Control.extend({
 			console.log(this.options.sizeModes, sizeMode);
 			throw new Error("sizeMode not found");
 		}
-		var pageBorderHeight = 0;
+		let pageBorderHeight = 0;
 		if (this.options.pageBorderHeight)
 			pageBorderHeight = this.options.pageBorderHeight + 4;
 		this.mapContainer.style.width = pageSize.width + 'px';
@@ -220,8 +220,8 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_pausePrint: function (sizeMode) {
-		var plugin = this
-		var loadingTest = setInterval(function () { 
+		let plugin = this
+		let loadingTest = setInterval(function () { 
 			if(!plugin.options.tileLayer.isLoading()) {
 				clearInterval(loadingTest);
 				plugin._printOpertion(sizeMode)
@@ -230,8 +230,8 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_printOpertion: function (sizemode) {
-		var plugin = this;
-		var widthForExport = this.mapContainer.style.width
+		let plugin = this;
+		let widthForExport = this.mapContainer.style.width
 		if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') {
 			widthForExport = this.originalState.mapWidth
 		}
@@ -240,7 +240,7 @@ L.Control.EasyPrint = L.Control.extend({
 				height: parseInt(plugin.mapContainer.style.height.replace('px'))
 			})
 			.then(function (dataUrl) {
-					var blob = plugin._dataURItoBlob(dataUrl);
+					let blob = plugin._dataURItoBlob(dataUrl);
 					if (plugin.options.exportOnly) {
 						fileSaver.saveAs(blob, plugin.options.filename + '.png');
 					} else {
@@ -274,7 +274,7 @@ L.Control.EasyPrint = L.Control.extend({
 
 	_sendToBrowserPrint: function (img, orientation, paperSize) {
 		this._page.resizeTo(600, 800); 
-		var pageContent = this._createNewWindow(img, orientation, this, paperSize)
+		let pageContent = this._createNewWindow(img, orientation, this, paperSize)
 		this._page.document.body.innerHTML = ''
 		this._page.document.write(pageContent);
 		this._page.document.close();  
@@ -357,7 +357,7 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_createNewWindow: function (img, orientation, plugin, paperSize) {
-		var strs =  new Array();
+		let strs =  new Array();
 		strs.push(`<html><head>
 				<style>@media print {
 					img { max-width: 98%!important; max-height: 98%!important; }
@@ -396,7 +396,7 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_createOuterContainer: function (mapDiv) {
-		var outerContainer = document.createElement('div'); 
+		let outerContainer = document.createElement('div'); 
 		mapDiv.parentNode.insertBefore(outerContainer, mapDiv); 
 		mapDiv.parentNode.removeChild(mapDiv);
 		outerContainer.appendChild(mapDiv);
@@ -416,7 +416,7 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_addCss: function () {
-		var css = document.createElement("style");
+		let css = document.createElement("style");
 		css.type = "text/css";
 		css.innerHTML = `.leaflet-control-easyPrint-button { 
 			background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cGF0aCBkPSJNMTI4LDMyaDI1NnY2NEgxMjhWMzJ6IE00ODAsMTI4SDMyYy0xNy42LDAtMzIsMTQuNC0zMiwzMnYxNjBjMCwxNy42LDE0LjM5OCwzMiwzMiwzMmg5NnYxMjhoMjU2VjM1Mmg5NiAgIGMxNy42LDAsMzItMTQuNCwzMi0zMlYxNjBDNTEyLDE0Mi40LDQ5Ny42LDEyOCw0ODAsMTI4eiBNMzUyLDQ0OEgxNjBWMjg4aDE5MlY0NDh6IE00ODcuMTk5LDE3NmMwLDEyLjgxMy0xMC4zODcsMjMuMi0yMy4xOTcsMjMuMiAgIGMtMTIuODEyLDAtMjMuMjAxLTEwLjM4Ny0yMy4yMDEtMjMuMnMxMC4zODktMjMuMiwyMy4xOTktMjMuMkM0NzYuODE0LDE1Mi44LDQ4Ny4xOTksMTYzLjE4Nyw0ODcuMTk5LDE3NnoiIGZpbGw9IiMwMDAwMDAiLz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K);
@@ -477,19 +477,19 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_dataURItoBlob: function (dataURI) {
-		var byteString = atob(dataURI.split(',')[1]);
-		var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-		var ab = new ArrayBuffer(byteString.length);
-		var dw = new DataView(ab);
-		for(var i = 0; i < byteString.length; i++) {
+		let byteString = atob(dataURI.split(',')[1]);
+		let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+		let ab = new ArrayBuffer(byteString.length);
+		let dw = new DataView(ab);
+		for(let i = 0; i < byteString.length; i++) {
 				dw.setUint8(i, byteString.charCodeAt(i));
 		}
 		return new Blob([ab], {type: mimeString});
 	},
 
 	_togglePageSizeButtons: function (e) {
-		var holderStyle = this.holder.style
-		var linkStyle = this.link.style
+		let holderStyle = this.holder.style
+		let linkStyle = this.link.style
 		if (e.type === 'mouseover') {
 			holderStyle.display = 'block';
 			linkStyle.borderTopRightRadius = '0'
@@ -502,14 +502,16 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 
 	_toggleControls: function (show) {
-		var controlContainer = document.getElementsByClassName("leaflet-control-container")[0];
-		if (show) return controlContainer.style.display = 'block';
-		controlContainer.style.display = 'none';
+		let controlContainer = document.getElementsByClassName("leaflet-control-container")[0];
+		if (show)
+			controlContainer.style.display = 'block';
+		else
+			controlContainer.style.display = 'none';
 	},
 	_toggleClasses: function (classes, show) {
 		classes.forEach(function (className) {
-			var divs = document.getElementsByClassName(className);
-			var i;
+			let divs = document.getElementsByClassName(className);
+			let i;
 			for (i in divs)
 			{
 				if (divs[i].style)
@@ -521,7 +523,7 @@ L.Control.EasyPrint = L.Control.extend({
 	},
 	_toggleIds: function (ids, show) {
 		ids.forEach(function (id) {
-			var div = document.getElementById(id);
+			let div = document.getElementById(id);
 			if (div && div.style)
 			{
 				div.style.display = show?'':'none';
