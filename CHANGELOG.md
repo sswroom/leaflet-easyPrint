@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.1.0
+4/3/2024
+- Continue to print even if some images failed to load
+
 ## Version 3.0.0
 2/1/2024
 - Add hideIds options

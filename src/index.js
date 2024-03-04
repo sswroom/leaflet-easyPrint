@@ -167,7 +167,8 @@ L.Control.EasyPrint = L.Control.extend({
 		let plugin = this;
 		domtoimage.toPng(this.mapContainer, {
 				width: parseInt(this.originalState.mapWidth.replace('px')),
-				height: parseInt(this.originalState.mapHeight.replace('px'))
+				height: parseInt(this.originalState.mapHeight.replace('px')),
+				imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AMECQMVtyBSbwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAALSURBVAjXY2AAAgAABQAB4iYFmwAAAABJRU5ErkJggg=="
 			})
 			.then(function (dataUrl) {
 				plugin.blankDiv = document.createElement("div");
@@ -237,7 +238,8 @@ L.Control.EasyPrint = L.Control.extend({
 		}
 		domtoimage.toPng(plugin.mapContainer, {
 				width: parseInt(widthForExport),
-				height: parseInt(plugin.mapContainer.style.height.replace('px'))
+				height: parseInt(plugin.mapContainer.style.height.replace('px')),
+				imagePlaceholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AMECQMVtyBSbwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAALSURBVAjXY2AAAgAABQAB4iYFmwAAAABJRU5ErkJggg=="
 			})
 			.then(function (dataUrl) {
 					let blob = plugin._dataURItoBlob(dataUrl);
