@@ -184,7 +184,19 @@ L.Control.EasyPrint = L.Control.extend({
 				plugin._resizeAndPrintMap(sizeMode);
 			})
 			.catch(function (error) {
-					console.error('oops, something went wrong!', error);
+				console.error('oops, something went wrong!', error);
+				let dataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AMECQMVtyBSbwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAALSURBVAjXY2AAAgAABQAB4iYFmwAAAABJRU5ErkJggg==";
+				plugin.blankDiv = document.createElement("div");
+				let blankDiv = plugin.blankDiv;
+				plugin.outerContainer.parentElement.insertBefore(blankDiv, plugin.outerContainer);
+				blankDiv.className = 'epHolder';
+				blankDiv.style.backgroundImage = 'url("' + dataUrl + '")';
+				blankDiv.style.position = 'absolute';
+				blankDiv.style.zIndex = 1011;
+				blankDiv.style.display = 'initial';
+				blankDiv.style.width = plugin.originalState.mapWidth;
+				blankDiv.style.height = plugin.originalState.mapHeight;
+				plugin._resizeAndPrintMap(sizeMode);
 			});
 	},
 
@@ -271,6 +283,28 @@ L.Control.EasyPrint = L.Control.extend({
 			})
 			.catch(function (error) {
 					console.error('Print operation failed', error);
+
+					plugin._page.document.close();  
+					plugin._toggleControls(true);
+					plugin._toggleClasses(plugin.options.hideClasses, true);
+					plugin._toggleIds(plugin.options.hideIds, true);
+
+					if (plugin.outerContainer) {
+						if (plugin.originalState.widthWasAuto) {
+							plugin.mapContainer.style.width = 'auto'
+						} else if (plugin.originalState.widthWasPercentage) {
+							plugin.mapContainer.style.width = plugin.originalState.percentageWidth
+						}
+						else {
+							plugin.mapContainer.style.width = plugin.originalState.mapWidth;              
+						}
+						plugin.mapContainer.style.height = plugin.originalState.mapHeight;
+						plugin._removeOuterContainer(plugin.mapContainer, plugin.outerContainer, plugin.blankDiv)
+						plugin._map.invalidateSize();
+						plugin._map.setView(plugin.originalState.center);
+						plugin._map.setZoom(plugin.originalState.zoom);
+					}
+					plugin._map.fire("easyPrint-finished");
 			}); 
 	},
 
